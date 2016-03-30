@@ -27,7 +27,7 @@ class Message(object):
                 hashes.SHA512(),
         )
 
-        signer.update(plaintext)
+        signer.update(plaintext.encode('utf-8'))
         self.signature = signer.finalize()
 
     def encrypt(self, recipient, *args, **kwargs):
@@ -42,7 +42,7 @@ class Message(object):
         self.recipient = recipient
 
         self.ciphertext = recipient['public_key'].encrypt(
-                self.plaintext, 
+                self.plaintext.encode('utf-8'), 
                 padding.OAEP(
                     mgf=padding.MGF1(algorithm=hashes.SHA1()),
                     algorithm=hashes.SHA1(),

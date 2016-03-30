@@ -16,7 +16,7 @@ class User(dict):
         public_key -- the user's public key
         """
 
-        self['password'] = password
+        self['password'] = bytes(password.encode('utf-8'))
         self['private_key'] = private_key
         self['public_key'] = public_key
    
@@ -51,7 +51,7 @@ class User(dict):
 
         private_key = serialization.load_pem_private_key(
                 data['private_key'],
-                password=password,
+                password=bytes(password.encode('utf-8')),
                 backend=default_backend(),
         )
 

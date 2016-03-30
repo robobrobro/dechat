@@ -23,7 +23,7 @@ def test_encrypt_and_decrypt(*args, **kwargs):
     recipient = create_user('1337')
     msg.encrypt(recipient)
     msg.decrypt(recipient)
-    eq_('test', msg.plaintext)
+    eq_('test'.encode('utf-8'), msg.plaintext)
 
 def test_encrypt_serialize_load_and_decrypt(*args, **kwargs):
     sender = create_user('password')
@@ -33,7 +33,7 @@ def test_encrypt_serialize_load_and_decrypt(*args, **kwargs):
     recipient_data = recipient.serialize()
     recipient = load_user(recipient_data, '1337')
     msg.decrypt(recipient)
-    eq_('test', msg.plaintext)
+    eq_('test'.encode('utf-8'), msg.plaintext)
 
 @raises(NotEncryptedError)
 def test_serialize_unencrypted_message(*args, **kwargs):
