@@ -1,8 +1,8 @@
 """ Functions dealing with user data """
 
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 class User(dict):
     """A user and its data"""
@@ -80,6 +80,46 @@ class User(dict):
                 'private_key': private_key_pem,
                 'public_key': public_key_pem,
         }
+
+    def sign(self, message, *args, **kwargs):
+        """Signs a message.
+
+        Positional arguments:
+        message -- the message to sign
+        """
+
+        # sign the message with the sender's private key
+        signer = self['private_key'].signer(
+                padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA512()),
+                    salt_length=padding.PSS.MAX_LENGTH,
+                ),
+                hashes.SHA512(),
+        )
+
+        signer.update(message.payload.encode('utf-8'))
+        message.signature = signer.finalize()
+
+    def verify(self, message, *args, **kwargs):
+        """Verifies the signature in a message.
+
+        Positional arguments:
+        message -- the message to verify
+
+        Raises InvalidSignature if the verification fails.
+        """
+
+        verifier = self['public_key'].verifier(
+                message.signature,
+                padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA512()),
+                    salt_length=padding.PSS.MAX_LENGTH,
+                ),
+                hashes.SHA512(),
+        )
+
+        verifier.update(message.payload.encode('utf-8'))
+        verifier.verify()
 
 def create_user(password, *args, **kwargs):
     """Creates user data.
